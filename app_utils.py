@@ -133,11 +133,11 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                              y=flags_vals, 
                              name="flags",
                              mode='markers',
-                             marker_color='crimson',
+                             marker_color='darkred',
                              hoverinfo="x",
-                             marker_line_width=.5,
+                             marker_line_width=1,
                              marker_size=6,
-                             marker_symbol='triangle-up'
+                             marker_symbol='line-ns-open'
                              ),
                   row=1, col=1)
     
@@ -145,11 +145,11 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                              y=flags_qc_vals, 
                              name="qc flags",
                              mode='markers',
-                             marker_color='lightgrey',
+                             marker_color='DarkSlateGrey',
                              hoverinfo="x",
                              marker_line_width=.5,
                              marker_size=6,
-                             marker_symbol='triangle-up'
+                             marker_symbol='line-ns-open'
                              ),
                   row=1, col=1)
     
@@ -273,11 +273,11 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
                              y=flags_vals, 
                              name="flags",
                              mode='markers',
-                             marker_color='crimson',
+                             marker_color='darkred',
                              hoverinfo="x",
-                             marker_line_width=.5,
+                             marker_line_width=1,
                              marker_size=6,
-                             marker_symbol='triangle-up'
+                             marker_symbol='line-ns-open'
                              ),
                   row=1, col=1)
     
@@ -285,11 +285,11 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
                              y=flags_qc_vals, 
                              name="qc flags",
                              mode='markers',
-                             marker_color='lightgrey',
+                             marker_color='DarkSlateGrey',
                              hoverinfo="x",
                              marker_line_width=.5,
                              marker_size=6,
-                             marker_symbol='triangle-up'
+                             marker_symbol='line-ns-open'
                              ),
                   row=1, col=1)
     

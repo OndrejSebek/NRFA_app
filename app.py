@@ -29,7 +29,7 @@ sub_stations = st.sidebar.selectbox('category',
                                      'sparsely monitored', 'small catchments',
                                      'top of catchments', 'lower in catchments',
                                      'natural sites', 'unnatural sites',
-                                     '__test_sites__'))
+                                     '__test_sites__', '_PRES_'))
 
 if sub_stations == 'chalk sites':
     st_id = st.sidebar.selectbox('station', 
@@ -62,6 +62,9 @@ elif sub_stations == '__test_sites__':
                                   '40017', '46005', '46014', '47019', '48001',
                                   '49006', '54017', '54057', '54110', '76017'
                                   ))
+elif sub_stations == '_PRES_':
+    st_id = st.sidebar.selectbox('station', 
+                                 ('48001', '49006', '47019', '40017'))
 else:
     st_id = st.sidebar.selectbox('station', 
                                  ('23011', '28022', '29002', '32008', '33066',
