@@ -95,8 +95,6 @@ else:
 
 # ''' ___________________________ FLAG OPTS ______________________________ '''
 
-st.sidebar.markdown('  ')
-st.sidebar.markdown('  ')
 
 flags = st.sidebar.checkbox('flags')
 if flags:
@@ -142,7 +140,10 @@ Qn_stats = st.sidebar.checkbox('show stats')
 
     
 # ''' ___________________________ PLOT OPTS ______________________________ '''
-    
+
+st.sidebar.markdown('  ')
+st.sidebar.markdown('  ')
+
 plot_opts = st.sidebar.checkbox('plot opts')
 if plot_opts:
     plt_height = st.sidebar.slider('height', 1, 2000, 900)
