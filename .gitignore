@@ -1,0 +1,9 @@
+.spyproject/
+__pycache__/
+data/
+meta/
+_model_inps_subtable/
+
+Procfile
+requirements.txt
+setup.sh
