@@ -80,15 +80,6 @@ merged = subset_data(merged, n_dt)
 nn_preds = subset_data(nn_preds, n_dt)
 
 
-# ''' _____________________________ ST INPS ________________________________ '''
-
-st.sidebar.markdown('  ')
-st.sidebar.markdown('  ')
-
-show_st_inps = st.sidebar.checkbox('show model inps')
-if show_st_inps:
-    st.sidebar.plotly_chart(au.heatmap_model_inps(st_id))
-
 
 # ''' ____________________________ OPTS _______________________________ '''
 
@@ -100,9 +91,6 @@ if ens_opt:
     flag_std = st.sidebar.slider('Z-score', .1, 10., step=.01, value=1.96)
 else:
     flag_std = 1.96
-    
-rel_errors = st.sidebar.checkbox('relative errors')
-log_opt = st.sidebar.checkbox('log y axis')
 
 
 # ''' ___________________________ FLAG OPTS ______________________________ '''
@@ -127,7 +115,32 @@ else:
     flag_abs_d=0
     
     
+    
+# ''' _________________________ PLOT VIZ OPTS ____________________________ '''
 
+st.sidebar.markdown('  ')
+st.sidebar.markdown('  ')
+    
+rel_errors = st.sidebar.checkbox('relative errors')
+log_opt = st.sidebar.checkbox('log y axis')
+
+
+
+# ''' ____________________________ ST INPS _______________________________ '''
+
+st.sidebar.markdown('  ')
+st.sidebar.markdown('  ')
+
+show_st_inps = st.sidebar.checkbox('show model inps')
+if show_st_inps:
+    st.sidebar.plotly_chart(au.heatmap_model_inps(st_id))
+    
+    
+# ''' ____________________________ STATS ________________________________ '''
+
+Qn_stats = st.sidebar.checkbox('show stats')
+
+    
 # ''' ___________________________ PLOT OPTS ______________________________ '''
     
 plot_opts = st.sidebar.checkbox('plot opts')
@@ -137,15 +150,9 @@ if plot_opts:
 else:
     plt_height = 900
     plt_width = 800
-
-
-# ''' ____________________________ STATS ________________________________ '''
     
-st.sidebar.markdown('  ')
-st.sidebar.markdown('  ')
-Qn_stats = st.sidebar.checkbox('show stats')
-
-
+    
+    
 # ''' ____________________________ FLAGS ________________________________ '''
 
 if flag_opt == 'no_flags':
