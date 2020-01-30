@@ -27,34 +27,36 @@ def load_data(ST_ID):
     
 @st.cache
 def subset_data(merged, nn_preds, N_DT):
-    merged = merged.iloc[N_DT[0]:N_DT[1]].copy()
-    nn_preds = nn_preds.iloc[N_DT[0]:N_DT[1]].copy()
+    # :adding np.nan to fill gaps
+    #
+    # merged = merged.iloc[N_DT[0]:N_DT[1]].copy()
+    # nn_preds = nn_preds.iloc[N_DT[0]:N_DT[1]].copy()
     
-    merged.index = pd.to_datetime(merged.index)
-    nn_preds.index = pd.to_datetime(nn_preds.index)
+    # merged.index = pd.to_datetime(merged.index)
+    # nn_preds.index = pd.to_datetime(nn_preds.index)
     
-    # print(merged.index)
+    # # print(merged.index)
     
-    td = merged.index[1:]- merged.index[:-1]
+    # td = merged.index[1:]- merged.index[:-1]
     
-    if not td[td.days > 1].empty:
-        pdtd = pd.DataFrame(td, columns=['dt'])
-        pdtd_ = pdtd[pdtd['dt'].dt.days > 1]
+    # if not td[td.days > 1].empty:
+    #     pdtd = pd.DataFrame(td, columns=['dt'])
+    #     pdtd_ = pdtd[pdtd['dt'].dt.days > 1]
         
-        # print(td)
-        # print(pdtd_)
+    #     # print(td)
+    #     # print(pdtd_)
         
-        for gap in pdtd_.index:
-            # print(gap)
-            cur_index = merged.index[gap]+datetime.timedelta(days=1)
+    #     for gap in pdtd_.index:
+    #         # print(gap)
+    #         cur_index = merged.index[gap]+datetime.timedelta(days=1)
             
-            merged.loc[cur_index] = np.nan
-            nn_preds.loc[cur_index] = np.nan
+    #         merged.loc[cur_index] = np.nan
+    #         nn_preds.loc[cur_index] = np.nan
         
-        merged = merged.sort_index()
-        nn_preds = nn_preds.sort_index()
+    #     merged = merged.sort_index()
+    #     nn_preds = nn_preds.sort_index()
     
-    return merged, nn_preds
+    return merged[N_DT[0]:N_DT[1]], nn_preds[N_DT[0]:N_DT[1]]
     
 
 
@@ -175,8 +177,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                   row=1, col=1)
     
     fig.add_trace(go.Scatter(x=merged.index,
-                             y=merged[str(st_id)],  
-                             connectgaps=None,
+                             y=merged[str(st_id)],
                              name="qcd",
                              legendgroup='qcd',
                              line=dict(color='black', width=2)),
@@ -242,31 +243,37 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                   row=2, col=1)
     
     fig.add_trace(go.Scatter(x=merged.index,
-                             y=orig_errors, 
-                             name="preqc", 
-                             legendgroup='preqc',
-                             showlegend=False,
-                             line=dict(color='darkcyan', width=2)),
+                              y=orig_errors,   
+                              connectgaps=False,
+                              name="preqc", 
+                              legendgroup='preqc',
+                              showlegend=False,
+                              line=dict(color='darkcyan', width=2)),
                   row=2, col=1)
     
     fig.add_trace(go.Scatter(x=merged.index,
-                             y=nn_errors, 
-                             name="nn", 
-                             legendgroup='nn',
-                             showlegend=False,
-                             line=dict(color='firebrick', width=2)),
+                              y=nn_errors,   
+                              connectgaps=False,
+                              name="nn", 
+                              legendgroup='nn',
+                              showlegend=False,
+                              line=dict(color='firebrick', width=2)),
                   row=2, col=1)
     
     fig.add_trace(go.Scatter(x=merged[st_id].index,
-                             y=qcd_errors, 
-                             name="qcd",
-                             legendgroup='qcd',
-                             showlegend=False,
-                             line=dict(color='black', width=2)),
+                              y=qcd_errors,   
+                              connectgaps=False,
+                              name="qcd",
+                              legendgroup='qcd',
+                              showlegend=False,
+                              line=dict(color='black', width=2)),
                   row=2, col=1)
     
     if log_opt:
-        fig.update_yaxes(type="log")
+        fig.update_layout(yaxis_type="log")
+        fig.update_xaxes(type='category', showticklabels=False)                          
+    else:
+        fig.update_xaxes(type='category', showticklabels=False)  
     return fig
 
 
@@ -396,7 +403,10 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
                   row=2, col=1)
     
     if log_opt:
-        fig.update_yaxes(type="log")
+        fig.update_layout(yaxis_type="log")
+        fig.update_xaxes(type='category', showticklabels=False)                          
+    else:
+        fig.update_xaxes(type='category', showticklabels=False) 
     return fig    
     
     
