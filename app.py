@@ -1,24 +1,6 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-
-import plotly
-import plotly.graph_objects as go
 
 import app_utils as au
-
-
-@st.cache
-def load_data(ST_ID):
-    merged =  pd.read_csv('data/level3/'+str(ST_ID)+'/comp/'+str(ST_ID)+'_merged.csv',
-                       index_col=0)
-    nn_preds = pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_mods.csv',
-                       index_col=0)
-    return merged, nn_preds
-    
-@st.cache
-def subset_data(merged, N_DT):
-    return merged[-N_DT:]
 
 
 # ''' ____________________________ SIDEBAR _______________________________ '''
@@ -77,10 +59,9 @@ st.sidebar.markdown("[*-> station info*](https://nrfa.ceh.ac.uk/data/station/mea
 
 # ''' _____________________________ DATA ________________________________ '''
 
-merged, nn_preds = load_data(st_id)
-n_dt = st.sidebar.slider('plot latest n days', 1, merged.shape[0], 400)
-merged = subset_data(merged, n_dt)
-nn_preds = subset_data(nn_preds, n_dt)
+merged, nn_preds = au.load_data(st_id)
+n_dt = st.sidebar.slider('subset data', 1, merged.shape[0], [merged.shape[0]-400, merged.shape[0]])
+merged, nn_preds = au.subset_data(merged, nn_preds, n_dt)
 
 
 
@@ -105,9 +86,9 @@ if flags:
                                     ('Z-score', 'abs', 'KDE', 'KDE_3'))
     
     if flag_opt == 'Z-score':
-        flag_abs_d = st.sidebar.number_input('abs threshold', value=0.01)
+        flag_abs_d = st.sidebar.number_input('|threshold|', value=0.01)
     elif flag_opt == 'abs':
-        flag_abs_d = st.sidebar.number_input('abs threshold', value=0.01)
+        flag_abs_d = st.sidebar.number_input('|threshold|', value=0.01)
     elif flag_opt == 'KDE' or flag_opt == 'KDE_3':
         flag_kde_smoothing = st.sidebar.slider('KDE smoothing', .01, 1., 
                                                step=.01, value=.5)
@@ -139,7 +120,7 @@ if show_st_inps:
     
 # ''' ____________________________ STATS ________________________________ '''
 
-Qn_stats = st.sidebar.checkbox('show stats')
+Qn_stats = st.sidebar.checkbox('show fit stats')
 
     
 # ''' ___________________________ PLOT OPTS ______________________________ '''

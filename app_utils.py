@@ -1,3 +1,4 @@
+import streamlit as st
 from plotly.subplots import make_subplots
 import plotly
 import plotly.graph_objects as go
@@ -6,11 +7,59 @@ import plotly.io as pio
 from scipy.stats import gaussian_kde
 import pandas as pd
 import numpy as np
+import datetime
 
 # from sklearn.ensemble import IsolationForest
 # from sklearn.neighbors import KNeighborsClassifier
 
 
+
+
+# ''' ____________________________ DATA _______________________________ '''
+
+@st.cache
+def load_data(ST_ID):
+    merged =  pd.read_csv('data/level3/'+str(ST_ID)+'/comp/'+str(ST_ID)+'_merged.csv',
+                       index_col=0)
+    nn_preds = pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_mods.csv',
+                       index_col=0)
+    return merged, nn_preds
+    
+@st.cache
+def subset_data(merged, nn_preds, N_DT):
+    merged = merged.iloc[N_DT[0]:N_DT[1]].copy()
+    nn_preds = nn_preds.iloc[N_DT[0]:N_DT[1]].copy()
+    
+    merged.index = pd.to_datetime(merged.index)
+    nn_preds.index = pd.to_datetime(nn_preds.index)
+    
+    # print(merged.index)
+    
+    td = merged.index[1:]- merged.index[:-1]
+    
+    if not td[td.days > 1].empty:
+        pdtd = pd.DataFrame(td, columns=['dt'])
+        pdtd_ = pdtd[pdtd['dt'].dt.days > 1]
+        
+        # print(td)
+        # print(pdtd_)
+        
+        for gap in pdtd_.index:
+            # print(gap)
+            cur_index = merged.index[gap]+datetime.timedelta(days=1)
+            
+            merged.loc[cur_index] = np.nan
+            nn_preds.loc[cur_index] = np.nan
+        
+        merged = merged.sort_index()
+        nn_preds = nn_preds.sort_index()
+    
+    return merged, nn_preds
+    
+
+
+# ''' ____________________________ FLAGS _______________________________ '''
+    
 def flag_outliers_fixed_abs(merged, abs_d):
     fl = (abs(merged['nn_m'] - merged['orig'])).astype(float) > abs_d
     return fl
@@ -76,6 +125,9 @@ def flag_qc_corrections(merged):
     return ~(merged[merged.columns[0]] == merged['orig']).values
     
     
+
+# ''' ____________________________ PLOTS _______________________________ '''
+
 def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
     st_id = merged.columns[0]
     
@@ -123,7 +175,8 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                   row=1, col=1)
     
     fig.add_trace(go.Scatter(x=merged.index,
-                             y=merged[str(st_id)], 
+                             y=merged[str(st_id)],  
+                             connectgaps=None,
                              name="qcd",
                              legendgroup='qcd',
                              line=dict(color='black', width=2)),
@@ -142,7 +195,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                   row=1, col=1)
     
     fig.add_trace(go.Scatter(x=flags_qc_x,
-                             y=flags_qc_vals, 
+                             y=flags_qc_vals,  
                              name="qc flags",
                              mode='markers',
                              marker_color='DarkSlateGrey',
@@ -213,7 +266,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
                   row=2, col=1)
     
     if log_opt:
-        fig.update_layout(yaxis_type="log")
+        fig.update_yaxes(type="log")
     return fig
 
 
@@ -343,7 +396,7 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
                   row=2, col=1)
     
     if log_opt:
-        fig.update_layout(yaxis_type="log")
+        fig.update_yaxes(type="log")
     return fig    
     
     
