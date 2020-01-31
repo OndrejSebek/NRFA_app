@@ -75,7 +75,7 @@ def main():
     st.sidebar.markdown('  ')
     
     st.sidebar.markdown('**Plot pars:**')
-    ens_opt = st.sidebar.checkbox('conf intervals')
+    ens_opt = st.sidebar.checkbox('conf intervals', True)
     if ens_opt:
         flag_std = st.sidebar.slider('Z-score', .1, 10., step=.01, value=1.96)
     else:
@@ -161,7 +161,17 @@ def main():
         flags_qc = au.flag_qc_corrections(merged)    
     else:
         flags_qc = []
+
+
+    # ''' __________________________ LOGOS ______________________________ '''
+        
+    xgb_logo, keras_logo = au.load_logos()
+
+    st.sidebar.markdown(' ')
+    st.sidebar.markdown(' ')
     
+    st.sidebar.image(keras_logo, width=160)
+    st.sidebar.image(xgb_logo, width=80)   
     
     # ''' __________________________ MAIN PLOT ______________________________ '''
         

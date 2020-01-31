@@ -8,12 +8,18 @@ from scipy.stats import gaussian_kde
 import pandas as pd
 import numpy as np
 import datetime
+from PIL import Image
 
 # from sklearn.ensemble import IsolationForest
 # from sklearn.neighbors import KNeighborsClassifier
 
+# ''' ____________________________ LOGOS _______________________________ '''
+@st.cache
+def load_logos():
+    xgb_logo = Image.open('XGBoost_logo.png')
+    keras_logo = Image.open('keras_tf_logo.jpeg')
 
-
+    return xgb_logo, keras_logo
 
 # ''' ____________________________ DATA _______________________________ '''
 
