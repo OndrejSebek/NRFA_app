@@ -16,8 +16,8 @@ from PIL import Image
 # ''' ____________________________ LOGOS _______________________________ '''
 @st.cache
 def load_logos():
-    xgb_logo = Image.open('XGBoost_logo.png')
-    keras_logo = Image.open('keras_tf_logo.jpeg')
+    xgb_logo = Image.open('img/XGBoost_logo.png')
+    keras_logo = Image.open('img/keras_tf_logo.jpeg')
 
     return xgb_logo, keras_logo
 
