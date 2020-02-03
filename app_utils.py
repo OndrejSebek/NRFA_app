@@ -464,7 +464,7 @@ def heatmap_model_inps(station):
     fig = go.Figure(go.Heatmap(x='t-'+dt.columns.astype(str),
                                y=dt.index.astype(str).values+':',
                                z=dt.values,
-                               zmin=0, zmax=2,
+                               zmin=0, zmax=.1,
                                colorscale='PuBu',
                                name='st inps'))
     
