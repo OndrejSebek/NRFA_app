@@ -11,13 +11,13 @@ def main():
     # st.sidebar.markdown('  ')
     
     sub_stations = st.sidebar.selectbox('category', 
-                                        ('all', 'chalk sites', 'densely monitored',
+                                        ('all', 'low quality sites', 'densely monitored',
                                          'sparsely monitored', 'small catchments',
                                          'top of catchments', 'lower in catchments',
                                          'natural sites', 'unnatural sites',
                                          '__test_sites__', '_PRES_'))
     
-    if sub_stations == 'chalk sites':
+    if sub_stations == 'low quality sites':
         st_id = st.sidebar.selectbox('station ID', 
                                      ('38029', '38029'))
     elif sub_stations == 'densely monitored':
