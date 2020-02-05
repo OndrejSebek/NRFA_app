@@ -58,7 +58,7 @@ def main():
                                       '39026', '39065', '45001', '46014', '47006', 
                                       '47019', '52010', '75017', '76021'))
     
-    st.sidebar.markdown("[*station info*](https://nrfa.ceh.ac.uk/data/station/meanflow/"+st_id+")")
+    st.sidebar.markdown("[station info](https://nrfa.ceh.ac.uk/data/station/meanflow/"+st_id+")")
     
     
     # ''' _____________________________ DATA ________________________________ '''
