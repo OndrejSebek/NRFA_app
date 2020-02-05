@@ -170,8 +170,8 @@ def main():
     st.sidebar.markdown(' ')
     st.sidebar.markdown(' ')
     
-    st.sidebar.image(keras_logo, width=160)
     st.sidebar.image(xgb_logo, width=80)   
+    st.sidebar.image(keras_logo, width=160)
     
     # ''' __________________________ MAIN PLOT ______________________________ '''
         
