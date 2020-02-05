@@ -5,7 +5,7 @@ import app_utils as au
 
 def main():
     # ''' ____________________________ SIDEBAR _______________________________ '''
-        
+      
     # station
     st.sidebar.markdown('**Station selection:**')
     # st.sidebar.markdown('  ')
@@ -134,10 +134,10 @@ def main():
     
     plot_opts = st.sidebar.checkbox('adjust plot size')
     if plot_opts:
-        plt_height = st.sidebar.slider('height', 1, 2000, 900)
+        plt_height = st.sidebar.slider('height', 1, 2000, 760)
         plt_width = st.sidebar.slider('width', 1, 4000, 800)
     else:
-        plt_height = 900
+        plt_height = 760
         plt_width = 800
         
         
