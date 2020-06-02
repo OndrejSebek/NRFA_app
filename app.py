@@ -10,53 +10,9 @@ def main():
     st.sidebar.markdown('**Station selection:**')
     # st.sidebar.markdown('  ')
     
-    sub_stations = st.sidebar.selectbox('category', 
-                                        ('all', 'low quality sites', 'densely monitored',
-                                         'sparsely monitored', 'small catchments',
-                                         'top of catchments', 'lower in catchments',
-                                         'natural sites', 'unnatural sites',
-                                         '__test_sites__', '_PRES_'))
-    
-    if sub_stations == 'low quality sites':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('38029', '38029'))
-    elif sub_stations == 'densely monitored':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('38003', '47006'))
-    elif sub_stations == 'sparsely monitored':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('23011', '23011'))
-    elif sub_stations == 'small catchments':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('29002', '34012', '75017'))
-    elif sub_stations == 'top of catchments':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('32008', '39026'))
-    elif sub_stations == 'lower in catchments':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('28022', '45001'))
-    elif sub_stations == 'natural sites':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('39065', '52010'))
-    elif sub_stations == 'unnatural sites':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('33066', '33066'))
-    elif sub_stations == '__test_sites__':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('28015', '28044', '30002', '33013', '34010',
-                                      '34012', '34018', '39001', '39056', '39125',
-                                      '40017', '46005', '46014', '47019', '48001',
-                                      '49006', '54017', '54057', '54110', '76017'
-                                      ))
-    elif sub_stations == '_PRES_':
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('48001', '49006', '47019', '40017'))
-    else:
-        st_id = st.sidebar.selectbox('station ID', 
-                                     ('23011', '28022', '29002', '32008', '33066',
-                                      '34012', '35003', '37008', '38003', '38029',
-                                      '39026', '39065', '45001', '46014', '47006', 
-                                      '47019', '52010', '75017', '76021'))
+    st_id = st.sidebar.selectbox('station ID', 
+                                 ("33013", "34010", "34012", "34018", "39056",
+                                  "40017", "46005", "47019", "48001", "49006"))
     
     st.sidebar.markdown("[station info](https://nrfa.ceh.ac.uk/data/station/meanflow/"+st_id+")")
     
@@ -64,10 +20,9 @@ def main():
     # ''' _____________________________ DATA ________________________________ '''
     
     merged, nn_preds = au.load_data(st_id)
-    n_dt = st.sidebar.slider('subsetting', 1, merged.shape[0], [merged.shape[0]-400, merged.shape[0]])
+    n_dt = st.sidebar.slider('subsetting', 0, merged.shape[0], (merged.shape[0]-1400, merged.shape[0]))
     merged, nn_preds = au.subset_data(merged, nn_preds, n_dt)
-    
-    
+    print(merged.index)
     
     # ''' ____________________________ OPTS _______________________________ '''
     
@@ -99,7 +54,7 @@ def main():
                                                    step=.01, value=.5)
     else:
         flag_opt='no_flags'
-        flag_abs_d=0
+        flag_abs_d=0 
         
         
         
@@ -119,7 +74,8 @@ def main():
     
     show_st_inps = st.sidebar.checkbox('show model inps')
     if show_st_inps:
-        st.sidebar.plotly_chart(au.heatmap_model_inps(st_id))
+        st.sidebar.plotly_chart(au.heatmap_model_inps(st_id),
+                                use_container_width=True)
         
         
     # ''' ____________________________ STATS ________________________________ '''
@@ -176,17 +132,19 @@ def main():
     # ''' __________________________ MAIN PLOT ______________________________ '''
         
     if ens_opt:
-        figc = au.fig_comb(merged, flag_std, flags, flags_qc, rel_errors, log_opt)
+        figc = au.fig_comb(merged, flag_std, flags, flags_qc, rel_errors, log_opt,
+                           plt_height, plt_width)
     else:
-        figc = au.fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt)
+        figc = au.fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt,
+                               plt_height, plt_width)
     
     
     # ''' __________________________ STATS PLOT _____________________________ '''
     
     if Qn_stats:
-        st.plotly_chart(au.heatmap(), width=plt_width, height=plt_height-200)
+        st.plotly_chart(au.heatmap(), use_container_width=False)
     else:
-        st.plotly_chart(figc, width=plt_width, height=plt_height)
+        st.plotly_chart(figc, use_container_width=False)
     
     
     

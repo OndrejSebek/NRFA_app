@@ -25,43 +25,16 @@ def load_logos():
 
 @st.cache
 def load_data(ST_ID):
-    merged =  pd.read_csv('data/level3/'+str(ST_ID)+'/comp/'+str(ST_ID)+'_merged.csv',
+    merged =  pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_merged.csv',
                        index_col=0)
     nn_preds = pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_mods.csv',
                        index_col=0)
+    merged.index = pd.to_datetime(merged.index)
+    nn_preds.index = pd.to_datetime(nn_preds.index)
     return merged, nn_preds
     
 @st.cache
 def subset_data(merged, nn_preds, N_DT):
-    # :adding np.nan to fill gaps
-    #
-    # merged = merged.iloc[N_DT[0]:N_DT[1]].copy()
-    # nn_preds = nn_preds.iloc[N_DT[0]:N_DT[1]].copy()
-    
-    # merged.index = pd.to_datetime(merged.index)
-    # nn_preds.index = pd.to_datetime(nn_preds.index)
-    
-    # # print(merged.index)
-    
-    # td = merged.index[1:]- merged.index[:-1]
-    
-    # if not td[td.days > 1].empty:
-    #     pdtd = pd.DataFrame(td, columns=['dt'])
-    #     pdtd_ = pdtd[pdtd['dt'].dt.days > 1]
-        
-    #     # print(td)
-    #     # print(pdtd_)
-        
-    #     for gap in pdtd_.index:
-    #         # print(gap)
-    #         cur_index = merged.index[gap]+datetime.timedelta(days=1)
-            
-    #         merged.loc[cur_index] = np.nan
-    #         nn_preds.loc[cur_index] = np.nan
-        
-    #     merged = merged.sort_index()
-    #     nn_preds = nn_preds.sort_index()
-    
     return merged[N_DT[0]:N_DT[1]], nn_preds[N_DT[0]:N_DT[1]]
     
 
@@ -136,7 +109,7 @@ def flag_qc_corrections(merged):
 
 # ''' ____________________________ PLOTS _______________________________ '''
 
-def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
+def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
     st_id = merged.columns[0]
     
     nn_h = merged['nn_m']+Z_s*merged['nn_std']
@@ -164,7 +137,8 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
     
     # update plot background color to transparent
     fig['layout'].update(plot_bgcolor='rgba(0,0,0,0)',
-                         margin_l=0, margin_t=0)
+                         margin_l=0, margin_t=0,
+                         height=height, width=width)
     
     
     ''' add traces top '''
@@ -285,7 +259,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt):
 
 
 
-def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
+def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height, width):
     st_id = merged.columns[0]
     
     if len(flags) == 0:
@@ -312,7 +286,8 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt):
     
     # update plot background color to transparent
     fig['layout'].update(plot_bgcolor='rgba(0,0,0,0)',
-                         margin_l=0, margin_t=0)
+                         margin_l=0, margin_t=0,
+                         height=height, width=width)
     
     fig.add_trace(go.Scatter(x=merged.index,
                              y=merged['orig'], 
