@@ -22,7 +22,6 @@ def main():
     merged, nn_preds = au.load_data(st_id)
     n_dt = st.sidebar.slider('subsetting', 0, merged.shape[0], (merged.shape[0]-1400, merged.shape[0]))
     merged, nn_preds = au.subset_data(merged, nn_preds, n_dt)
-    print(merged.index)
     
     # ''' ____________________________ OPTS _______________________________ '''
     
@@ -146,24 +145,6 @@ def main():
     else:
         st.plotly_chart(figc, use_container_width=False)
     
-    
-    
-
-
-
+   
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-

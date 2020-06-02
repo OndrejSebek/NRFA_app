@@ -442,18 +442,3 @@ def heatmap_model_inps(station):
     
     return fig
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
