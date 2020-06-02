@@ -249,14 +249,10 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
                               line=dict(color='black', width=2)),
                   row=2, col=1)
     
+    fig.update_xaxes(showticklabels=False) 
     if log_opt:
         fig.update_layout(yaxis_type="log")
-        fig.update_xaxes(type='category', showticklabels=False)                          
-    else:
-        fig.update_xaxes(type='category', showticklabels=False)  
     return fig
-
-
 
 
 def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height, width):
@@ -383,11 +379,9 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height,
                              line=dict(color='black', width=2)),
                   row=2, col=1)
     
+    fig.update_xaxes(showticklabels=False) 
     if log_opt:
         fig.update_layout(yaxis_type="log")
-        fig.update_xaxes(type='category', showticklabels=False)                          
-    else:
-        fig.update_xaxes(type='category', showticklabels=False) 
     return fig    
     
     
