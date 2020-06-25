@@ -386,7 +386,7 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height,
     
     
 def heatmap():
-    dt = pd.read_csv('meta/comp/Qn_stats.csv', index_col=0)
+    dt = pd.read_csv('meta/Qn_fit_stats.csv', index_col=0)
     
     rmses = dt[dt.columns[:4]].sort_index(ascending=False)
     stds = dt[dt.columns[4:]].sort_index(ascending=False)
