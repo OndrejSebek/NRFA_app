@@ -47,7 +47,8 @@ def flag_outliers_fixed_abs(merged, abs_d):
 
 
 def flag_outliers_zscore(merged, std, abs_d):
-    fl = (abs(merged['nn_m'] - merged['orig']) > std*abs(merged['nn_std'])) & (abs(merged['nn_m'] - merged['orig']) > abs_d)
+    fl = ((abs(merged['nn_m'] - merged['orig']) > std*merged['nn_std'])
+          & (abs(merged['nn_m'] - merged['orig']) > abs_d))
     return fl
 
 def flag_outliers_kde(merged, nn_preds, smoothing):
