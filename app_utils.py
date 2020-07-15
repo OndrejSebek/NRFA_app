@@ -25,12 +25,14 @@ def load_logos():
 
 @st.cache
 def load_data(ST_ID):
-    merged =  pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_merged.csv',
+    merged =  pd.read_csv(f'data/level3/{ST_ID}/{ST_ID}_merged.csv',
                        index_col=0)
-    nn_preds = pd.read_csv('data/level3/'+str(ST_ID)+'/'+str(ST_ID)+'_mods.csv',
+    nn_preds = pd.read_csv(f'data/level3/{ST_ID}/{ST_ID}_mods.csv',
                        index_col=0)
+    
     merged.index = pd.to_datetime(merged.index)
     nn_preds.index = pd.to_datetime(nn_preds.index)
+    
     return merged, nn_preds
     
 @st.cache
@@ -39,7 +41,7 @@ def subset_data(merged, nn_preds, N_DT):
     
 
 
-# ''' ____________________________ FLAGS _______________________________ '''
+# ''' ____________________________ FLAGS __________________________________ '''
     
 def flag_outliers_fixed_abs(merged, abs_d):
     fl = (abs(merged['nn_m'] - merged['orig'])).astype(float) > abs_d
@@ -54,7 +56,8 @@ def flag_outliers_zscore(merged, std, abs_d):
 def flag_outliers_kde(merged, nn_preds, smoothing):
     kdes = []
     for i in range(merged.shape[0]):
-        kdes.append(gaussian_kde(nn_preds.iloc[i], bw_method=(smoothing/nn_preds.values.std(ddof=1))))
+        kdes.append(gaussian_kde(nn_preds.iloc[i],
+                                 bw_method=(smoothing/nn_preds.values.std(ddof=1))))
 
     flags = []
     for i, val in enumerate(merged['orig']):
@@ -63,18 +66,18 @@ def flag_outliers_kde(merged, nn_preds, smoothing):
         else:
             flags.append(False)
 
-    # flag three consecutive values outside estimated PDE
-    flags_tr = []
-    for i, val in enumerate(flags):
-        if i < len(flags)-1: 
-            if all([val, flags[i-1], flags[i+1]]):
-                flags_tr.append(True)
-            else:
-                flags_tr.append(False)
-        else: 
-            flags_tr.append(False)
+    # # flag three consecutive values outside estimated PDE
+    # flags_tr = []
+    # for i, val in enumerate(flags):
+    #     if i < len(flags)-1: 
+    #         if all([val, flags[i-1], flags[i+1]]):
+    #             flags_tr.append(True)
+    #         else:
+    #             flags_tr.append(False)
+    #     else: 
+    #         flags_tr.append(False)
 
-    return flags, flags_tr
+    return flags #, flags_tr
 
 
 # def flag_outliers_iforest(merged, nn_preds):
@@ -106,11 +109,13 @@ def flag_outliers_kde(merged, nn_preds, smoothing):
 def flag_qc_corrections(merged):
     return ~(merged[merged.columns[0]] == merged['orig']).values
     
-    
 
 # ''' ____________________________ PLOTS _______________________________ '''
 
-def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
+def fig_comb(merged, Z_s, flag_abs_d, flags, flags_qc,
+             flag_opt, rel_errors, log_opt,
+             height, width):
+    
     st_id = merged.columns[0]
     
     nn_h = merged['nn_m']+Z_s*merged['nn_std']
@@ -133,16 +138,17 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
     else:
         flags_qc_vals = [(merged[st_id].min()-.2*(merged[st_id].max()-merged[st_id].min()))]*len(flags_qc_x)
     
-    fig = make_subplots(rows=2, cols=1, 
-                        shared_xaxes=True, vertical_spacing=0.02)
+    fig = make_subplots(rows=3, cols=1, 
+                        shared_xaxes=True, 
+                        row_width=[1, 1, 3],
+                        vertical_spacing=0.02)
     
     # update plot background color to transparent
     fig['layout'].update(plot_bgcolor='rgba(0,0,0,0)',
                          margin_l=0, margin_t=0,
                          height=height, width=width)
     
-    
-    ''' add traces top '''
+    """ add traces top """
     fig.add_trace(go.Scatter(x=merged.index,
                              y=merged['orig'], 
                              name="preqc",
@@ -168,7 +174,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
                              y=flags_vals, 
                              name="flags",
                              mode='markers',
-                             marker_color='darkred',
+                             marker_color='royalblue',
                              hoverinfo="x",
                              marker_line_width=1,
                              marker_size=6,
@@ -180,7 +186,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
                              y=flags_qc_vals,  
                              name="qc flags",
                              mode='markers',
-                             marker_color='DarkSlateGrey',
+                             marker_color='silver',
                              hoverinfo="x",
                              marker_line_width=.5,
                              marker_size=6,
@@ -188,7 +194,7 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
                              ),
                   row=1, col=1)
     
-    
+    """ add traces mid """
     # errors/resids
     nn_l_errors = nn_l-merged['orig']
     nn_h_errors = nn_h-merged['orig']
@@ -203,8 +209,6 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
         nn_errors = nn_errors/merged['orig'] 
         qcd_errors = qcd_errors/merged['orig']
     
-    
-    ''' add traces bot '''
     fig.add_trace(go.Scatter(x=merged.index,
                              y=nn_h_errors, 
                              name="nn_h",
@@ -250,13 +254,43 @@ def fig_comb(merged, Z_s, flags, flags_qc, rel_errors, log_opt, height, width):
                               line=dict(color='black', width=2)),
                   row=2, col=1)
     
+    if flag_opt == 'no_flags':
+        n_vals = thresh = [0]*merged.shape[0]
+    elif flag_opt == "Z-score":
+        n_vals = abs(merged['orig']-merged['nn_m'])/merged['nn_std']
+        thresh = [Z_s]*merged.shape[0]
+    elif flag_opt == "|threshold|":
+        n_vals = abs(merged['orig']-merged['nn_m'])
+        thresh = [flag_abs_d]*merged.shape[0]
+    elif flag_opt == "KDE":
+        n_vals = thresh = [0]*merged.shape[0]
+        
+    """ add traces bot """
+    fig.add_trace(go.Scatter(x=merged.index,
+                             y=n_vals, 
+                             name=flag_opt,
+                             legendgroup=flag_opt,
+                             line=dict(color='silver', width=2)),
+                  row=3, col=1)
+    
+    fig.add_trace(go.Scatter(x=merged.index,
+                             y=thresh, 
+                             name="threshold",
+                             legendgroup='threshold',
+                             line=dict(color='royalblue', width=2, dash='dash')),
+                  row=3, col=1)
+    
+    """ format """
     fig.update_xaxes(showticklabels=False) 
     if log_opt:
         fig.update_layout(yaxis_type="log")
     return fig
 
 
-def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height, width):
+def fig_comb_nns(merged, nn_preds, flag_abs_d, flags, flags_qc,
+                 flag_opt, rel_errors, log_opt,
+                 height, width):
+    
     st_id = merged.columns[0]
     
     if len(flags) == 0:
@@ -279,7 +313,9 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height,
 
     
     fig = make_subplots(rows=2, cols=1, 
-                        shared_xaxes=True, vertical_spacing=0.02)
+                        shared_xaxes=True,
+                        row_width=[1, 3],
+                        vertical_spacing=0.02)
     
     # update plot background color to transparent
     fig['layout'].update(plot_bgcolor='rgba(0,0,0,0)',
@@ -311,7 +347,7 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height,
                              y=flags_vals, 
                              name="flags",
                              mode='markers',
-                             marker_color='darkred',
+                             marker_color='royalblue',
                              hoverinfo="x",
                              marker_line_width=1,
                              marker_size=6,
@@ -323,7 +359,7 @@ def fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt, height,
                              y=flags_qc_vals, 
                              name="qc flags",
                              mode='markers',
-                             marker_color='DarkSlateGrey',
+                             marker_color='silver',
                              hoverinfo="x",
                              marker_line_width=.5,
                              marker_size=6,
@@ -419,8 +455,8 @@ def heatmap():
                              name='nSTD'),                  
                   row=1, col=2)
     
-    # fig['data'][0]['showscale']=False
-    fig['data'][1]['showscale']=False
+    # fig['data'][0]['showscale'] = False
+    fig['data'][1]['showscale'] = False
     
     # export offline
     # pio.write_html(fig, file='plots/Qn_rmse_std_heatmap.html', auto_open=False)

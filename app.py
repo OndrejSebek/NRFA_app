@@ -4,11 +4,10 @@ import app_utils as au
 
 
 def main():
-    # ''' ____________________________ SIDEBAR _______________________________ '''
-      
-    # station
+    
+    # ''' __________________________ SIDEBAR ______________________________ '''
+    
     st.sidebar.markdown('**Station selection:**')
-    # st.sidebar.markdown('  ')
     
     st_id = st.sidebar.selectbox('station ID', 
                                  ("33013", "34010", "34012", "34018", "39056",
@@ -20,8 +19,10 @@ def main():
     # ''' _____________________________ DATA ________________________________ '''
     
     merged, nn_preds = au.load_data(st_id)
-    n_dt = st.sidebar.slider('subsetting', 0, merged.shape[0], (merged.shape[0]-1400, merged.shape[0]))
+    n_dt = st.sidebar.slider('subsetting', 0, merged.shape[0],
+                             (merged.shape[0]-1400, merged.shape[0]))
     merged, nn_preds = au.subset_data(merged, nn_preds, n_dt)
+    
     
     # ''' ____________________________ OPTS _______________________________ '''
     
@@ -30,34 +31,34 @@ def main():
     
     st.sidebar.markdown('**Plot pars:**')
     ens_opt = st.sidebar.checkbox('conf intervals', True)
-    if ens_opt:
-        flag_std = st.sidebar.slider('Z-score', .1, 10., step=.01, value=1.96)
-    else:
-        flag_std = 1.96
     
     
-    # ''' ___________________________ FLAG OPTS ______________________________ '''
-    
+    # ''' ___________________________ FLAGS  ______________________________ '''
     
     flags = st.sidebar.checkbox('flags')
+    
+    # default flaggers
+    flag_std = 1.96
+    flag_kde_smoothing = .5
+    flag_abs_d = 0
+    
     if flags:
-        flag_opt = st.sidebar.selectbox('algorithm', 
-                                        ('Z-score', 'abs', 'KDE', 'KDE_3'))
+        flag_opt = st.sidebar.selectbox('method', 
+                                        ('Z-score', '|threshold|', 'KDE'))
         
         if flag_opt == 'Z-score':
-            flag_abs_d = st.sidebar.number_input('|threshold|', value=0.01)
-        elif flag_opt == 'abs':
-            flag_abs_d = st.sidebar.number_input('|threshold|', value=0.01)
-        elif flag_opt == 'KDE' or flag_opt == 'KDE_3':
+            flag_std = st.sidebar.number_input('Z-score', step=1., value=1.96)
+            flag_abs_d = st.sidebar.number_input('|threshold|', value=.0)
+        elif flag_opt == '|threshold|':
+            flag_abs_d = st.sidebar.number_input('value', value=.0)
+        elif flag_opt == 'KDE':
             flag_kde_smoothing = st.sidebar.slider('KDE smoothing', .01, 1., 
                                                    step=.01, value=.5)
     else:
-        flag_opt='no_flags'
-        flag_abs_d=0 
+        flag_opt = 'no_flags'
         
         
-        
-    # ''' _________________________ PLOT VIZ OPTS ____________________________ '''
+    # ''' ______________________ PLOT VIZ OPTS ____________________________ '''
     
     st.sidebar.markdown('  ')
     st.sidebar.markdown('  ')
@@ -66,7 +67,7 @@ def main():
     rel_errors = st.sidebar.checkbox('relative errors')
     
     
-    # ''' ____________________________ ST INPS _______________________________ '''
+    # ''' __________________________ ST INPS ______________________________ '''
     
     st.sidebar.markdown('  ')
     st.sidebar.markdown('  ')
@@ -77,12 +78,12 @@ def main():
                                 use_container_width=True)
         
         
-    # ''' ____________________________ STATS ________________________________ '''
+    # ''' ___________________________ STATS _______________________________ '''
     
     Qn_stats = st.sidebar.checkbox('show fit stats')
     
         
-    # ''' ___________________________ PLOT OPTS ______________________________ '''
+    # ''' _________________________ PLOT OPTS _____________________________ '''
     
     st.sidebar.markdown('  ')
     st.sidebar.markdown('  ')
@@ -96,21 +97,16 @@ def main():
         plt_width = 800
         
         
-        
-    # ''' ____________________________ FLAGS ________________________________ '''
+    # ''' ___________________________ FLAGS _______________________________ '''
     
     if flag_opt == 'no_flags':
         flags = []
-    elif flag_opt == 'abs':
+    elif flag_opt == '|threshold|':
         flags = au.flag_outliers_fixed_abs(merged, flag_abs_d)
     elif flag_opt == 'Z-score':
         flags = au.flag_outliers_zscore(merged, flag_std, flag_abs_d)
     else:
-        flags_1, flags_3 = au.flag_outliers_kde(merged, nn_preds, flag_kde_smoothing)
-        if flag_opt == 'KDE':
-            flags = flags_1
-        elif flag_opt == 'KDE_3':
-            flags = flags_3
+        flags = au.flag_outliers_kde(merged, nn_preds, flag_kde_smoothing)
     
     if flag_opt != 'no_flags':    
         flags_qc = au.flag_qc_corrections(merged)    
@@ -131,10 +127,12 @@ def main():
     # ''' __________________________ MAIN PLOT ______________________________ '''
         
     if ens_opt:
-        figc = au.fig_comb(merged, flag_std, flags, flags_qc, rel_errors, log_opt,
+        figc = au.fig_comb(merged, flag_std, flag_abs_d, flags, flags_qc,
+                           flag_opt, rel_errors, log_opt,
                            plt_height, plt_width)
     else:
-        figc = au.fig_comb_nns(merged, nn_preds, flags, flags_qc, rel_errors, log_opt,
+        figc = au.fig_comb_nns(merged, nn_preds, flag_abs_d, flags, flags_qc,
+                               flag_opt, rel_errors, log_opt,
                                plt_height, plt_width)
     
     
