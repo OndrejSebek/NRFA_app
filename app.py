@@ -38,17 +38,19 @@ def main():
     flags = st.sidebar.checkbox('flags')
     
     # default flaggers
-    flag_std = 1.96
+    def_flaggers = au.get_def_flaggers()
+    
+    flag_std = float(def_flaggers.loc[int(st_id), "std"])
+    flag_abs_d = float(def_flaggers.loc[int(st_id), "abs_d"])
     flag_kde_smoothing = .5
-    flag_abs_d = 0
     
     if flags:
         flag_opt = st.sidebar.selectbox('method', 
                                         ('Z-score', '|threshold|', 'KDE'))
         
         if flag_opt == 'Z-score':
-            flag_std = st.sidebar.number_input('Z-score', step=1., value=1.96)
-            flag_abs_d = st.sidebar.number_input('|threshold|', value=.0)
+            flag_std = st.sidebar.number_input('Z-score', step=1., value=flag_std)
+            flag_abs_d = st.sidebar.number_input('|threshold|', value=flag_abs_d)
         elif flag_opt == '|threshold|':
             flag_abs_d = st.sidebar.number_input('value', value=.0)
         elif flag_opt == 'KDE':

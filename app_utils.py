@@ -109,6 +109,11 @@ def flag_outliers_kde(merged, nn_preds, smoothing):
 def flag_qc_corrections(merged):
     return ~(merged[merged.columns[0]] == merged['orig']).values
     
+# ''' ____________________________ FLAGS __________________________________ '''
+
+@st.cache
+def get_def_flaggers():
+    return pd.read_csv(f"data/def_flaggers/def_flaggers.csv", index_col=0)
 
 # ''' ____________________________ PLOTS _______________________________ '''
 
